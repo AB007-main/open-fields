@@ -504,3 +504,93 @@ function showOnly(markers, ids) {
 
 const byId = id => FIELDS.find(f => f.id === id);
 const getParam = name => new URLSearchParams(location.search).get(name);
+
+/* ============================================================
+   PHOTO PICKER
+   A real file input. It validates, previews and lets you remove
+   a shot before sending. Nothing uploads in the mockup, but the
+   pick, reject and preview behaviour is the real thing, and the
+   same object array is what Supabase Storage will take later.
+   ============================================================ */
+const MAX_PHOTOS = 5;
+const MAX_BYTES = 10 * 1024 * 1024;
+const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+
+function initPhotoPicker(mount, opts = {}) {
+  if (!mount) return null;
+  const picked = [];
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.hidden = true;
+  mount.after(input);
+
+  const list = document.createElement('div');
+  list.className = 'photo-grid';
+  const err = document.createElement('p');
+  err.className = 'hint';
+  err.setAttribute('role', 'status');
+  mount.after(err);
+  mount.after(list);
+
+  const say = t => { err.textContent = t || ''; err.style.color = t ? 'var(--warn)' : 'var(--faint)'; };
+
+  const fmtSize = b => b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.round(b / 1024)} KB`;
+
+  function draw() {
+    list.innerHTML = picked.map((p, i) => `
+      <figure class="photo-item">
+        <img src="${p.url}" alt="${p.file.name}">
+        <button type="button" class="photo-remove" data-i="${i}" aria-label="Remove ${p.file.name}">
+          ${icon('x')}
+        </button>
+        <figcaption>${fmtSize(p.file.size)}</figcaption>
+      </figure>`).join('');
+    if (opts.onChange) opts.onChange(picked);
+  }
+
+  function add(files) {
+    const problems = [];
+    for (const file of files) {
+      if (picked.length >= MAX_PHOTOS) { problems.push(`Only ${MAX_PHOTOS} photos at a time.`); break; }
+      // Some phones report an empty type for HEIC, so fall back to the extension.
+      const okType = OK_TYPES.includes(file.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+      if (!okType) { problems.push(`${file.name} is not an image.`); continue; }
+      if (file.size > MAX_BYTES) { problems.push(`${file.name} is over 10 MB.`); continue; }
+      if (picked.some(p => p.file.name === file.name && p.file.size === file.size)) continue;
+      picked.push({ file, url: URL.createObjectURL(file) });
+    }
+    say(problems[0]);
+    draw();
+  }
+
+  input.addEventListener('change', () => { add(input.files); input.value = ''; });
+
+  mount.addEventListener('click', () => input.click());
+  mount.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+  });
+
+  // drag and drop, desktop only but free to support
+  ['dragenter', 'dragover'].forEach(t => mount.addEventListener(t, e => {
+    e.preventDefault(); mount.classList.add('is-drop');
+  }));
+  ['dragleave', 'drop'].forEach(t => mount.addEventListener(t, e => {
+    e.preventDefault(); mount.classList.remove('is-drop');
+  }));
+  mount.addEventListener('drop', e => add(e.dataTransfer.files));
+
+  list.addEventListener('click', e => {
+    const b = e.target.closest('.photo-remove');
+    if (!b) return;
+    const i = +b.dataset.i;
+    URL.revokeObjectURL(picked[i].url);   // release the blob, or the tab leaks
+    picked.splice(i, 1);
+    say('');
+    draw();
+  });
+
+  return { files: () => picked.map(p => p.file), clear: () => { picked.splice(0); draw(); } };
+}

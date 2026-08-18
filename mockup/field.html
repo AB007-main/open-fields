@@ -203,7 +203,7 @@ document.getElementById('page').innerHTML = `
             Goals are gone
           </button>
         </div>
-        <button class="btn btn-quiet btn-block" style="margin-top:8px" data-report="photo">
+        <button class="btn btn-quiet btn-block" style="margin-top:8px" id="addPhoto" type="button">
           <svg style="width:15px;height:15px"><use href="#i-camera"></use></svg>
           Add a photo
         </button>
@@ -221,6 +221,16 @@ document.getElementById('page').innerHTML = `
 document.querySelectorAll('[data-report]').forEach(b =>
   b.addEventListener('click', () => { document.getElementById('thanks').hidden = false; })
 );
+
+// real file picker on the sidebar report card
+const sidebarPhotos = initPhotoPicker(document.getElementById('addPhoto'), {
+  onChange: files => {
+    const t = document.getElementById('thanks');
+    if (!files.length) return;
+    t.textContent = `${files.length} photo${files.length > 1 ? 's' : ''} ready. (Mockup: nothing was uploaded.)`;
+    t.hidden = false;
+  }
+});
 
 // star picker
 document.querySelectorAll('#rate button').forEach(b => {
@@ -242,7 +252,7 @@ document.getElementById('composer').innerHTML = me ? `
     <textarea class="inp" id="body" placeholder="How was it? Surface, gates, crowds, anything a first-timer should know."></textarea>
     <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
       <button class="btn btn-primary" id="post">Post comment</button>
-      <button class="btn btn-quiet">${icon('camera')} Add a photo</button>
+      <button class="btn btn-quiet" id="commentPhoto" type="button">${icon('camera')} Add a photo</button>
     </div>
     <p class="hint" id="posted" hidden style="color:var(--turf)">Posted. (Mockup: nothing saved.)</p>
   </div>` : `
@@ -256,8 +266,15 @@ document.getElementById('composer').innerHTML = me ? `
     </div>
   </div>`;
 
+const commentPhotos = initPhotoPicker(document.getElementById('commentPhoto'));
+
 document.getElementById('post')?.addEventListener('click', () => {
-  document.getElementById('posted').hidden = false;
+  const n = commentPhotos ? commentPhotos.files().length : 0;
+  const el = document.getElementById('posted');
+  el.textContent = n
+    ? `Posted with ${n} photo${n > 1 ? 's' : ''}. (Mockup: nothing saved.)`
+    : 'Posted. (Mockup: nothing saved.)';
+  el.hidden = false;
 });
 
 document.getElementById('comments').innerHTML = COMMENTS.map(c => `

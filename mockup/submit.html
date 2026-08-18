@@ -88,10 +88,12 @@
 
     <div>
       <label class="lbl">Photo of the goal</label>
-      <div class="dropzone" tabindex="0" role="button">
+      <div class="dropzone" id="drop" tabindex="0" role="button"
+           aria-label="Add photos of the goal">
         <svg class="goal-glyph" aria-hidden="true"><use href="#i-camera"></use></svg>
-        <div>Drop a photo here, or tap to choose one</div>
-        <p class="hint" style="margin-top:6px">A photo showing the goal gets your field approved fastest.</p>
+        <div>Tap to take a photo or choose one</div>
+        <p class="hint" style="margin-top:6px">A photo showing the goal gets your field approved fastest.
+        Up to 5 images, 10 MB each.</p>
       </div>
     </div>
 
@@ -140,9 +142,16 @@ document.querySelectorAll('.toggle-row').forEach(row => {
   });
 });
 
+const photos = initPhotoPicker(document.getElementById('drop'));
+
 document.getElementById('form').addEventListener('submit', e => {
   e.preventDefault();
-  document.getElementById('done').hidden = false;
+  const n = photos.files().length;
+  const done = document.getElementById('done');
+  done.textContent = n
+    ? `Submitted with ${n} photo${n > 1 ? 's' : ''}. In the real site this would land in the review queue. Nothing was saved here.`
+    : 'Submitted with no photo, which means a slower review. In the real site this would land in the review queue. Nothing was saved here.';
+  done.hidden = false;
 });
 
 // drop-a-pin map
