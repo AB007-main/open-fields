@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme sheet | Open Fields</title>
+<meta name="description" content="The Open Fields design system on one page.">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Theme sheet | Open Fields">
+<meta property="og:description" content="The Open Fields design system on one page.">
+<meta property="og:image" content="brand/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header" data-header></header>
+
+<main class="wrap" style="padding-block:40px 70px">
+  <p class="eyebrow" style="margin-bottom:16px">Night turf</p>
+  <h1 class="display" style="font-size:clamp(36px,6vw,64px)">Theme sheet</h1>
+  <p class="lede" style="margin-top:14px">
+    Every color and type decision on the site, on one page. Change a value in
+    <code style="font-family:var(--data);color:var(--turf)">styles.css</code> and every screen follows.
+  </p>
+
+  <!-- COLOR -->
+  <section style="margin-top:48px">
+    <p class="eyebrow">Color</p>
+    <h2 class="display" style="margin:12px 0 20px">Surfaces</h2>
+    <div class="swatches">
+      <div class="sw"><div class="chip-color" style="background:#0E1311"></div><div class="meta">Base<code>#0E1311</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#18201C"></div><div class="meta">Surface<code>#18201C</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#222C27"></div><div class="meta">Raised<code>#222C27</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#2C3831"></div><div class="meta">Pressed<code>#2C3831</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#F2F5F0"></div><div class="meta">Chalk<code>#F2F5F0</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#8A968F"></div><div class="meta">Muted<code>#8A968F</code></div></div>
+    </div>
+
+    <h2 class="display" style="margin:36px 0 8px">Status</h2>
+    <p class="small" style="margin-bottom:20px;max-width:60ch">
+      These three carry meaning and are never used decoratively. Green only ever
+      means a person confirmed the goals are up.
+    </p>
+    <div class="swatches">
+      <div class="sw"><div class="chip-color" style="background:#35D07F"></div><div class="meta">Turf, goals up<code>#35D07F</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#F2A63B"></div><div class="meta">Amber, seasonal or stale or permit<code>#F2A63B</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#E2593F"></div><div class="meta">Red, closed or goals gone<code>#E2593F</code></div></div>
+      <div class="sw"><div class="chip-color" style="background:#5C685F"></div><div class="meta">Gray, unverified<code>#5C685F</code></div></div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section style="margin-top:56px">
+    <p class="eyebrow">Type</p>
+    <h2 class="display" style="margin:12px 0 24px">Three roles</h2>
+
+    <div class="card" style="padding:26px">
+      <p class="small">Display: Barlow Condensed, 700, uppercase. Headlines and field names.</p>
+      <div class="display" style="font-size:64px;margin-top:10px">Find a goal</div>
+      <div class="spec">clamp(44px, 8.5vw, 104px) / 0.92 line-height</div>
+    </div>
+
+    <div class="card" style="padding:26px;margin-top:14px">
+      <p class="small">Body: Inter, 400/500. Everything you read in sentences.</p>
+      <p style="font-size:17px;margin-top:10px;max-width:60ch">
+        Parks and open fields around Atlanta that still have real lacrosse goals
+        standing, checked by the people who actually play there.
+      </p>
+      <div class="spec">15px base / 1.55 line-height</div>
+    </div>
+
+    <div class="card" style="padding:26px;margin-top:14px">
+      <p class="small">Data: IBM Plex Mono, uppercase, tabular. Distances, counts, timestamps. Reads like a scoreboard.</p>
+      <div class="data" style="font-size:19px;margin-top:12px;color:var(--turf)">2.4 MI · 2 GOALS · CONFIRMED 3D AGO</div>
+      <div class="spec">10 to 13px / 0.06 to 0.16em tracking</div>
+    </div>
+  </section>
+
+  <!-- THE MARK -->
+  <section style="margin-top:56px">
+    <p class="eyebrow">The mark</p>
+    <h2 class="display" style="margin:12px 0 8px">One shape, everywhere</h2>
+    <p class="small" style="max-width:62ch;margin-bottom:22px">
+      A lacrosse goal seen head on. It is the logo, the map pin, the photo
+      watermark and the empty state. The ring around the pin is the crease.
+    </p>
+    <div class="card" style="padding:30px;display:flex;gap:40px;align-items:center;flex-wrap:wrap">
+      <svg class="goal-glyph" style="width:72px;height:72px;color:var(--turf)"><use href="#i-goal"></use></svg>
+      <div style="display:flex;gap:22px;align-items:center">
+        <div class="marker is-up"><div class="crease"><svg class="goal-glyph"><use href="#i-goal"></use></svg></div></div>
+        <div class="marker is-seasonal"><div class="crease"><svg class="goal-glyph"><use href="#i-goal"></use></svg></div></div>
+        <div class="marker"><div class="crease"><svg class="goal-glyph"><use href="#i-goal"></use></svg></div></div>
+      </div>
+      <div class="small">Goals up · Seasonal · Unverified</div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section style="margin-top:56px">
+    <p class="eyebrow">Components</p>
+    <h2 class="display" style="margin:12px 0 22px">Buttons, badges, chips</h2>
+
+    <div class="card" style="padding:26px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-primary">Primary action</button>
+      <button class="btn btn-outline">Secondary</button>
+      <button class="btn">Tertiary</button>
+      <button class="btn btn-quiet">Quiet report</button>
+    </div>
+
+    <div class="card" style="padding:26px;margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <span class="badge is-up">Goals up</span>
+      <span class="badge is-seasonal">Goals seasonal</span>
+      <span class="badge is-unverified">Unverified</span>
+      <span class="badge is-closed">Closed</span>
+    </div>
+
+    <div class="card" style="padding:18px 26px;margin-top:14px">
+      <div class="chipbar">
+        <button class="chip" aria-pressed="true">Goals up now</button>
+        <button class="chip" aria-pressed="false">Nets on</button>
+        <button class="chip" aria-pressed="false">Turf</button>
+        <button class="chip" aria-pressed="false">Lights</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARD STATES -->
+  <section style="margin-top:56px">
+    <p class="eyebrow">Cards</p>
+    <h2 class="display" style="margin:12px 0 22px">All four states</h2>
+    <div class="grid-3" id="cards"></div>
+  </section>
+</main>
+
+<footer class="site-footer" data-footer></footer>
+
+<script src="mock-data.js"></script>
+<script src="app.js"></script>
+<script>
+renderChrome('theme');
+const one = s => FIELDS.find(f => f.status === s);
+document.getElementById('cards').innerHTML =
+  ['up', 'seasonal', 'unverified', 'closed'].map(s => featuredCard(one(s))).join('');
+</script>
+</body>
+</html>

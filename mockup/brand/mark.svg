@@ -1,0 +1,9 @@
+<!-- Open Fields primary mark. A goal seen head on: crossbar and posts
+     open at the bottom, netting inside, ground line beneath. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+     fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="Open Fields">
+    <path d="M8.5 7.4v11M15.5 7.4v11M4.8 11.4h14.4M4.8 15.2h14.4" stroke-width=".95" opacity=".65"/>
+    <path d="M4.4 18.6V7.4h15.2v11.2" stroke-width="2"/>
+    <path d="M2.2 18.6h19.6" stroke-width="1.3" opacity=".4"/>
+</svg>

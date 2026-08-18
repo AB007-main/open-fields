@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add a field | Open Fields</title>
+<meta name="description" content="Know a field that's missing? Add it in about a minute.">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Add a field | Open Fields">
+<meta property="og:description" content="Know a field that's missing? Add it in about a minute.">
+<meta property="og:image" content="brand/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="demo-banner">Mockup: this form does not save anything</div>
+<header class="site-header" data-header></header>
+
+<main class="wrap" style="padding-block:40px 70px">
+  <p class="eyebrow" style="margin-bottom:16px">Add a field</p>
+  <h1 class="display" style="font-size:clamp(36px,6vw,64px)">Put a field<br>on the map</h1>
+  <p class="lede" style="margin-top:16px">
+    Takes about a minute. A person reviews every submission before it goes live,
+    so nothing you add shows up on the map right away.
+  </p>
+
+  <form class="form-grid" style="margin-top:38px" id="form">
+
+    <div>
+      <label class="lbl" for="pin">Drop a pin on the field</label>
+      <div id="minimap"></div>
+      <p class="hint">Click the map to move the pin. Get it on the field itself, not the parking lot.</p>
+    </div>
+
+    <div>
+      <label class="lbl" for="name">Field or park name</label>
+      <input class="inp" id="name" placeholder="e.g. Ocee Park north field">
+    </div>
+
+    <div>
+      <label class="lbl" for="addr">Address</label>
+      <input class="inp" id="addr" placeholder="Street, city, state">
+    </div>
+
+    <div>
+      <label class="lbl">Surface</label>
+      <div class="toggle-row">
+        <button class="toggle" type="button" aria-pressed="true">Grass</button>
+        <button class="toggle" type="button" aria-pressed="false">Turf</button>
+        <button class="toggle" type="button" aria-pressed="false">Not sure</button>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:18px">
+      <div>
+        <label class="lbl" for="goals">How many goals</label>
+        <select class="inp" id="goals">
+          <option>1</option><option selected>2</option><option>3</option><option>4 or more</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Nets on the goals?</label>
+        <div class="toggle-row">
+          <button class="toggle" type="button" aria-pressed="true">Yes</button>
+          <button class="toggle" type="button" aria-pressed="false">No</button>
+          <button class="toggle" type="button" aria-pressed="false">Unsure</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label class="lbl">What else is there</label>
+      <div class="toggle-row">
+        <button class="toggle" type="button" aria-pressed="false">Lights</button>
+        <button class="toggle" type="button" aria-pressed="false">Restrooms</button>
+        <button class="toggle" type="button" aria-pressed="false">Parking lot</button>
+        <button class="toggle" type="button" aria-pressed="false">Water fountain</button>
+        <button class="toggle" type="button" aria-pressed="false">Free to use</button>
+        <button class="toggle" type="button" aria-pressed="false">Permit required</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="lbl">Photo of the goal</label>
+      <div class="dropzone" tabindex="0" role="button">
+        <svg class="goal-glyph" aria-hidden="true"><use href="#i-camera"></use></svg>
+        <div>Drop a photo here, or tap to choose one</div>
+        <p class="hint" style="margin-top:6px">A photo showing the goal gets your field approved fastest.</p>
+      </div>
+    </div>
+
+    <div>
+      <label class="lbl" for="notes">Anything a first-timer should know</label>
+      <textarea class="inp" id="notes" placeholder="Where to park, which gate is open, when a league takes the field…"></textarea>
+    </div>
+
+    <div>
+      <label class="lbl" for="email">Your email (optional)</label>
+      <input class="inp" id="email" type="email" placeholder="you@example.com">
+      <p class="hint">Only used to tell you when this field goes live, or to ask a question about it.</p>
+    </div>
+
+    <div class="callout">
+      <b>What happens next.</b> Your submission goes into a review queue.
+      A moderator checks the location and the goal, then it appears on the map,
+      usually within a day or two.
+    </div>
+
+    <button class="btn btn-primary btn-lg" type="submit">Submit for review</button>
+    <p class="hint" id="done" hidden style="color:var(--turf)">
+      Submitted. In the real site this would land in the review queue. Nothing was saved here.
+    </p>
+  </form>
+</main>
+
+<footer class="site-footer" data-footer></footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="mock-data.js"></script>
+<script src="app.js"></script>
+<script>
+renderChrome('submit');
+
+// toggles: single-select within surface/nets rows, multi-select for amenities
+document.querySelectorAll('.toggle-row').forEach(row => {
+  const multi = row.children.length > 4;
+  row.addEventListener('click', e => {
+    const b = e.target.closest('.toggle');
+    if (!b) return;
+    if (!multi) [...row.children].forEach(c => c.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', multi
+      ? String(b.getAttribute('aria-pressed') !== 'true')
+      : 'true');
+  });
+});
+
+document.getElementById('form').addEventListener('submit', e => {
+  e.preventDefault();
+  document.getElementById('done').hidden = false;
+});
+
+// drop-a-pin map
+const m = initMap('minimap', [], { center: [-76.61, 39.30], zoom: 12 });
+if (m) {
+  const el = document.createElement('div');
+  el.className = 'marker is-up';
+  el.innerHTML = `<div class="crease">${icon('goal', 'goal-glyph')}</div>`;
+  const marker = new maplibregl.Marker({ element: el, draggable: true })
+    .setLngLat([-76.61, 39.30]).addTo(m.map);
+  m.map.on('click', ev => marker.setLngLat(ev.lngLat));
+}
+</script>
+</body>
+</html>

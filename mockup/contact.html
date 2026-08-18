@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | Open Fields</title>
+<meta name="description" content="Report a bug, flag a bad listing, or request removal of a field.">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Contact | Open Fields">
+<meta property="og:description" content="Report a bug, flag a bad listing, or request removal of a field.">
+<meta property="og:image" content="brand/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<div class="demo-banner">Mockup: this form does not send anything</div>
+<header class="site-header" data-header></header>
+
+<main class="wrap" style="padding-block:44px 70px">
+  <p class="eyebrow" style="margin-bottom:16px">Contact</p>
+  <h1 class="display" style="font-size:clamp(36px,6vw,64px)">Tell us what's<br>wrong</h1>
+  <p class="lede" style="margin-top:16px">
+    Bugs, bad listings, takedown requests, or anything else. It reaches a person, not a queue.
+  </p>
+
+  <form class="form-grid" style="margin-top:38px" id="form">
+    <div>
+      <label class="lbl" for="topic">What's this about</label>
+      <select class="inp" id="topic">
+        <option value="bug">A bug on the site</option>
+        <option value="listing">A field listing is wrong</option>
+        <option value="missing">A field is missing</option>
+        <option value="removal">Remove a field I own or manage</option>
+        <option value="sponsor">Advertising or sponsorship</option>
+        <option value="other">Something else</option>
+      </select>
+    </div>
+
+    <div id="bug">
+      <label class="lbl" for="what">What happened</label>
+      <textarea class="inp" id="what"
+        placeholder="What you did, what you expected, and what happened instead."></textarea>
+      <p class="hint">If it's a bug, telling us the page and your phone or browser helps a lot.</p>
+    </div>
+
+    <div>
+      <label class="lbl" for="page">Page or field it happened on (optional)</label>
+      <input class="inp" id="page" placeholder="e.g. the map, or Patterson Park">
+    </div>
+
+    <div>
+      <label class="lbl" for="email">Your email</label>
+      <input class="inp" id="email" type="email" placeholder="you@example.com">
+      <p class="hint">Only used to reply. Nothing else.</p>
+    </div>
+
+    <div class="callout" id="removal">
+      <b>Property owners and managers.</b> If you're asking to have a field removed, say so in
+      the message and include how you're connected to the property. Those requests are actioned
+      first, and the listing comes down while we look at it.
+    </div>
+
+    <button class="btn btn-primary btn-lg" type="submit">Send</button>
+    <p class="hint" id="done" hidden style="color:var(--turf)">
+      Sent. In the real site this would land in an inbox and get a reply. Nothing was sent here.
+    </p>
+  </form>
+</main>
+
+<footer class="site-footer" data-footer></footer>
+<script src="mock-data.js"></script>
+<script src="app.js"></script>
+<script>
+renderChrome('contact');
+document.getElementById('form').addEventListener('submit', e => {
+  e.preventDefault();
+  document.getElementById('done').hidden = false;
+});
+// deep links from the footer preselect the topic
+const t = location.hash.replace('#', '');
+if (t) { const sel = document.getElementById('topic'); if ([...sel.options].some(o => o.value === t)) sel.value = t; }
+</script>
+</body></html>

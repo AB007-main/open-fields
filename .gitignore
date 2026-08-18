@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# secrets, never commit these
+.env
+.env.local
+.env.*.local
+
+# build output
+.next/
+out/
+dist/
+build/
+
+# platform
+.vercel/
+.DS_Store
+*.log
+npm-debug.log*
+
+# editor
+.idea/
+.vscode/
+*.swp

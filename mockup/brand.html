@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identity | Open Fields</title>
+<meta name="description" content="The Open Fields mark, wordmark, favicon, app icon and social image.">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .board { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 34px; }
+  .board.light { background: var(--chalk); color: #0E1311; }
+  .board.light .brand-name { color: #0E1311; }
+  .board.light .brand-name em { color: #17794A; }
+  .board.light .goal-glyph { color: #17794A; }
+  .board.mono .goal-glyph, .board.mono .brand-name, .board.mono .brand-name em { color: var(--chalk); }
+  .sizes { display: flex; align-items: flex-end; gap: 30px; flex-wrap: wrap; }
+  .sizes figure { text-align: center; }
+  .sizes figcaption { font-family: var(--data); font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--faint); margin-top: 10px; }
+  .lockup { display: flex; align-items: center; gap: 14px; }
+  .lockup .goal-glyph { width: 44px; height: 44px; color: var(--turf); }
+  .lockup .brand-name { font-size: 36px; }
+  .stacked { text-align: center; }
+  .stacked .goal-glyph { width: 64px; height: 64px; color: var(--turf); margin: 0 auto 12px; }
+  .stacked .brand-name { font-size: 30px; }
+  .dont { border-left: 2px solid var(--danger); background: var(--danger-dim); padding: 12px 16px;
+    border-radius: 0 var(--r-sm) var(--r-sm) 0; font-size: 14px; margin-top: 10px; }
+</style>
+</head><body>
+
+<header class="site-header" data-header></header>
+
+<main class="wrap" style="padding-block:44px 70px">
+  <p class="eyebrow" style="margin-bottom:16px">Identity</p>
+  <h1 class="display" style="font-size:clamp(36px,6vw,64px)">The mark</h1>
+  <p class="lede" style="margin-top:14px">
+    A goal seen head on: crossbar and posts, open at the bottom, netting inside,
+    ground line beneath. One shape does the logo, the map pin, the favicon, the
+    app icon and the photo watermark.
+  </p>
+
+  <!-- SCALE -->
+  <section style="margin-top:46px">
+    <p class="eyebrow">Scale</p>
+    <h2 class="display" style="margin:12px 0 8px">It has to survive 17px</h2>
+    <p class="small" style="max-width:64ch;margin-bottom:20px">
+      Below about 20px the four mesh lines fill in and read as a solid block, so
+      small sizes use a reduced variant with two verticals, one horizontal and no ground line.
+      That is the version in the map pins and the favicon.
+    </p>
+    <div class="board sizes">
+      <figure><svg class="goal-glyph" style="width:128px;height:128px;color:var(--turf)"><use href="#i-goal"></use></svg><figcaption>128, full</figcaption></figure>
+      <figure><svg class="goal-glyph" style="width:64px;height:64px;color:var(--turf)"><use href="#i-goal"></use></svg><figcaption>64, full</figcaption></figure>
+      <figure><svg class="goal-glyph" style="width:26px;height:26px;color:var(--turf)"><use href="#i-goal"></use></svg><figcaption>26, header</figcaption></figure>
+      <figure><div class="marker is-up"><div class="crease"><svg class="goal-glyph"><use href="#i-goal-sm"></use></svg></div></div><figcaption>17, map pin</figcaption></figure>
+      <figure><img src="brand/favicon.svg" width="32" height="32" alt="Favicon"><figcaption>32, favicon</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- LOCKUPS -->
+  <section style="margin-top:52px">
+    <p class="eyebrow">Lockups</p>
+    <h2 class="display" style="margin:12px 0 20px">Horizontal and stacked</h2>
+    <div class="grid-2" style="gap:16px">
+      <div class="board"><div class="lockup">
+        <svg class="goal-glyph" aria-hidden="true"><use href="#i-goal"></use></svg>
+        <span class="brand-name">Open<em>Fields</em></span>
+      </div></div>
+      <div class="board stacked">
+        <svg class="goal-glyph" aria-hidden="true"><use href="#i-goal"></use></svg>
+        <div class="brand-name">Open<em>Fields</em></div>
+      </div>
+    </div>
+    <p class="small" style="margin-top:14px">
+      Clear space on all sides equals the height of the crossbar. The wordmark is
+      Barlow Condensed 800, uppercase, with "OPEN" in chalk, "FIELDS" in turf green.
+    </p>
+  </section>
+
+  <!-- VARIANTS -->
+  <section style="margin-top:52px">
+    <p class="eyebrow">Variants</p>
+    <h2 class="display" style="margin:12px 0 20px">Dark, light, single colour</h2>
+    <div class="grid-3" style="gap:16px">
+      <div class="board"><div class="lockup">
+        <svg class="goal-glyph" aria-hidden="true"><use href="#i-goal"></use></svg>
+        <span class="brand-name" style="font-size:26px">Open<em>Fields</em></span>
+      </div><p class="small" style="margin-top:16px">On night turf, the default</p></div>
+
+      <div class="board light"><div class="lockup">
+        <svg class="goal-glyph" aria-hidden="true"><use href="#i-goal"></use></svg>
+        <span class="brand-name" style="font-size:26px">Open<em>Fields</em></span>
+      </div><p style="margin-top:16px;font-size:13px;color:#4A5850">On light, with darker green for contrast</p></div>
+
+      <div class="board mono"><div class="lockup">
+        <svg class="goal-glyph" aria-hidden="true"><use href="#i-goal"></use></svg>
+        <span class="brand-name" style="font-size:26px">Open<em>Fields</em></span>
+      </div><p class="small" style="margin-top:16px">Single colour for print and embroidery</p></div>
+    </div>
+    <div class="dont">
+      Don't stretch it, rotate it, add a gradient, put it on a busy photo, or recolour
+      the mark to anything but turf green, chalk, or a single flat colour. The green is
+      also the "goals are up" status colour, so using it decoratively weakens the one
+      signal the site depends on.
+    </div>
+  </section>
+
+  <!-- ASSETS -->
+  <section style="margin-top:52px">
+    <p class="eyebrow">Assets</p>
+    <h2 class="display" style="margin:12px 0 20px">What's in the repo</h2>
+    <div class="board">
+      <img src="brand/og-image.png" alt="Open Fields social share image, 1200 by 630"
+           style="width:100%;border-radius:var(--r);border:1px solid var(--line)">
+      <p class="small" style="margin-top:14px">brand/og-image.png, 1200 by 630, for iMessage, Slack and X previews</p>
+    </div>
+    <div class="grid-2" style="gap:16px;margin-top:16px">
+      <div class="board" style="display:flex;gap:22px;align-items:center">
+        <img src="brand/icon-512.png" alt="App icon" width="96" height="96" style="border-radius:20px">
+        <div><div style="font-weight:600">brand/icon-512.png</div>
+        <p class="small" style="margin-top:5px">App icon / PWA home screen, 512×512</p></div>
+      </div>
+      <div class="board" style="display:flex;gap:22px;align-items:center">
+        <img src="brand/favicon.svg" alt="Favicon" width="64" height="64">
+        <div><div style="font-weight:600">brand/favicon.svg</div>
+        <p class="small" style="margin-top:5px">Favicon, plus brand/mark.svg for the bare glyph</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" data-footer></footer>
+<script src="mock-data.js"></script>
+<script src="app.js"></script>
+<script>renderChrome('brand');</script>
+</body></html>

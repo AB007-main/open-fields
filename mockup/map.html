@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map | Open Fields</title>
+<meta name="description" content="Every field near you, filtered by sport, surface, goals and today's conditions.">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Map | Open Fields">
+<meta property="og:description" content="Every field near you, filtered by sport, surface, goals and today's conditions.">
+<meta property="og:image" content="brand/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="map-page">
+
+<header class="site-header" data-header></header>
+
+<div class="map-toolbar">
+  <div class="wrap">
+    <div class="locbar">
+      <form class="field-input" id="locForm" style="flex:1 1 240px;max-width:380px">
+        <svg aria-hidden="true"><use href="#i-search"></use></svg>
+        <input type="search" id="q" placeholder="Zip code, city, or address" aria-label="Search a location">
+      </form>
+      <button class="btn btn-outline btn-sm" id="here">
+        <svg aria-hidden="true"><use href="#i-crosshair"></use></svg>
+        Use my location
+      </button>
+      <span class="data" id="locLabel" style="color:var(--muted)"></span>
+    </div>
+    <div class="chipbar" id="chips">
+      <button class="chip" aria-pressed="true"  data-filter="up">Lacrosse goals up</button>
+      <button class="chip" aria-pressed="false" data-filter="playable">Playable today</button>
+      <button class="chip" aria-pressed="false" data-filter="nets">Nets on</button>
+      <button class="chip" aria-pressed="false" data-filter="Turf">Turf</button>
+      <button class="chip" aria-pressed="false" data-filter="Grass">Grass</button>
+      <button class="chip" aria-pressed="false" data-filter="lights">Lights</button>
+      <button class="chip" aria-pressed="false" data-filter="free">Free, no permit</button>
+      <button class="chip" aria-pressed="false" data-filter="restrooms">Restrooms</button>
+      <button class="chip" aria-pressed="false" data-filter="parking">Parking lot</button>
+    </div>
+  </div>
+</div>
+
+<div class="split">
+  <!-- results -->
+  <section class="results" id="results" aria-label="Field results">
+    <button class="sheet-handle" id="handle" aria-label="Expand or collapse the list"></button>
+    <div class="results-head">
+      <h1 class="display" style="font-size:22px" id="count">Fields near you</h1>
+      <span class="data" style="color:var(--muted)">Sorted by distance</span>
+    </div>
+    <div id="list" style="display:flex;flex-direction:column;gap:12px"></div>
+  </section>
+
+  <!-- map -->
+  <div class="map-canvas">
+    <div id="map"></div>
+    <div class="map-fallback">
+      <div>
+        <div class="data">Map unavailable offline</div>
+        <p class="small" style="margin-top:8px;max-width:34ch">
+          Tiles load from OpenStreetMap. Connect to the internet and reload to see the real map.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="mock-data.js"></script>
+<script src="app.js"></script>
+<script>
+renderChrome('map');
+
+const active = new Set(['up']);
+let mapRef = null;
+
+function matches(f) {
+  return [...active].every(k => {
+    switch (k) {
+      case 'up':        return f.status === 'up';
+      case 'playable':  return f.condition === 'good';
+      case 'nets':      return f.nets === true;
+      case 'Turf':      return f.surface === 'Turf';
+      case 'Grass':     return f.surface === 'Grass';
+      case 'lights':    return f.lights;
+      case 'free':      return f.cost.startsWith('Free');
+      case 'restrooms': return f.restrooms;
+      case 'parking':   return f.parking === 'Lot';
+      default:
+        if (k.startsWith('sport:')) return (f.sports || []).includes(k.slice(6));
+        return true;
+    }
+  });
+}
+
+function render() {
+  const shown = FIELDS.filter(matches).sort((a, b) => distanceTo(a) - distanceTo(b));
+  document.getElementById('count').textContent =
+    `${shown.length} field${shown.length === 1 ? '' : 's'} near you`;
+
+  // an ad every eighth result, styled as a card so it sits in the rhythm
+  const html = shown.map((f, i) =>
+    resultCard(f) + ((i + 1) % 8 === 0 ? adCard() : '')
+  ).join('');
+
+  document.getElementById('list').innerHTML =
+    html || `<div class="callout">No fields match those filters. Try turning one off.</div>`;
+
+  if (mapRef) showOnly(mapRef.markers, shown.map(f => f.id));
+
+  document.querySelectorAll('.result').forEach(card => {
+    const id = card.dataset.id;
+    card.addEventListener('mouseenter', () => highlight(id, true));
+    card.addEventListener('mouseleave', () => highlight(id, false));
+    card.addEventListener('click', () => location.href = `field.html?id=${id}`);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter') location.href = `field.html?id=${id}`;
+    });
+  });
+}
+
+document.getElementById('chips').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const on = chip.getAttribute('aria-pressed') === 'true';
+  chip.setAttribute('aria-pressed', String(!on));
+  on ? active.delete(chip.dataset.filter) : active.add(chip.dataset.filter);
+  render();
+});
+
+// mobile: tap the handle to peek or expand the sheet
+document.getElementById('handle').addEventListener('click', () => {
+  document.getElementById('results').classList.toggle('is-peek');
+});
+
+// List first, always. The map is an enhancement, not a dependency.
+render();
+mapRef = initMap('map', FIELDS);
+if (mapRef) showOnly(mapRef.markers, FIELDS.filter(matches).map(f => f.id));
+
+// ---- location controls ----
+const locLabel = document.getElementById('locLabel');
+const showLoc = t => { locLabel.textContent = t || userLocation().label; };
+showLoc();
+
+function relocate(loc) {
+  setUserLocation(loc);
+  showLoc(loc.label);
+  render();
+  if (mapRef) mapRef.map.flyTo({ center: [loc.lng, loc.lat], zoom: 11 });
+  document.querySelector('.place-chip').lastChild.textContent = ` ${loc.label}`;
+}
+
+document.getElementById('locForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const q = document.getElementById('q').value.trim();
+  if (!q) return;
+  showLoc('Searching');
+  try { relocate(await geocode(q)); }
+  catch (err) { showLoc(err.message); }
+});
+
+document.getElementById('here').addEventListener('click', () => {
+  showLoc('Locating');
+  useMyLocation((loc, err) => loc ? relocate(loc) : showLoc(err));
+});
+</script>
+</body>
+</html>

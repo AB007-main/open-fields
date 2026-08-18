@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin | Open Fields</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head><body>
+
+<div class="demo-banner">Mockup: every number below is invented. In the real site this route is behind an email allowlist.</div>
+<header class="site-header" data-header></header>
+
+<main class="wrap" style="padding-block:34px 70px">
+
+  <div style="display:flex;align-items:end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+    <div>
+      <p class="eyebrow" style="margin-bottom:12px">Admin</p>
+      <h1 class="display" style="font-size:clamp(32px,5vw,50px)">Dashboard</h1>
+    </div>
+    <span class="data" style="color:var(--muted)">Signed in as austin.bradley@gmail.com</span>
+  </div>
+
+  <!-- KPIs: numbers, not charts -->
+  <div class="admin-grid" style="margin-top:30px" id="kpis"></div>
+
+  <div class="grid-2" style="margin-top:20px;gap:20px;align-items:start">
+
+    <!-- activity -->
+    <div class="card" style="padding:22px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap">
+        <h2 class="display" style="font-size:22px">Daily active users</h2>
+        <span class="data" style="color:var(--muted)">Last 14 days</span>
+      </div>
+      <div style="margin-top:16px" id="spark"></div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap;margin-top:14px;
+                  padding-top:14px;border-top:1px solid var(--line)" id="dauStats"></div>
+    </div>
+
+    <!-- service status -->
+    <div class="card" style="padding:22px">
+      <h2 class="display" style="font-size:22px">Services</h2>
+      <div class="svc" style="margin-top:10px" id="svc"></div>
+    </div>
+  </div>
+
+  <!-- moderation queue: the job this page actually exists for -->
+  <div class="card" style="padding:22px;margin-top:20px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap">
+      <h2 class="display" style="font-size:22px">Submissions awaiting review</h2>
+      <span class="badge is-seasonal" id="qcount"></span>
+    </div>
+    <div style="margin-top:8px" id="queue"></div>
+  </div>
+
+  <!-- recent signups -->
+  <div class="card" style="padding:22px;margin-top:20px;overflow-x:auto">
+    <h2 class="display" style="font-size:22px;margin-bottom:12px">Recent signups</h2>
+    <table class="tbl" id="signups"></table>
+  </div>
+
+  <!-- field health -->
+  <div class="card" style="padding:22px;margin-top:20px;overflow-x:auto">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap">
+      <h2 class="display" style="font-size:22px">Fields going stale</h2>
+      <span class="small">Longest since anyone confirmed the goals</span>
+    </div>
+    <table class="tbl" style="margin-top:12px" id="stale"></table>
+  </div>
+
+</main>
+
+<footer class="site-footer" data-footer></footer>
+
+<script src="mock-data.js"></script>
+<script src="app.js"></script>
+<script>
+renderChrome('admin');
+
+const pct = (a, b) => b ? Math.round((a / b) * 100) : 0;
+
+document.getElementById('kpis').innerHTML = [
+  { k: 'Users today',    v: ADMIN.users.today, d: `+${ADMIN.users.week} this week`, up: true },
+  { k: 'Total users',    v: ADMIN.users.total.toLocaleString(), d: `+${ADMIN.users.month} this month`, up: true },
+  { k: 'Fields live',    v: ADMIN.fields.live, d: `${ADMIN.fields.pending} awaiting review` },
+  { k: 'Reports today',  v: ADMIN.reports.today, d: `${ADMIN.reports.week} this week` },
+  { k: 'Flagged',        v: ADMIN.fields.flagged, d: 'Needs a decision' }
+].map(t => `
+  <div class="tile">
+    <div class="k">${t.k}</div>
+    <div class="v">${t.v}</div>
+    <div class="d ${t.up ? 'up' : ''}">${t.d}</div>
+  </div>`).join('');
+
+document.getElementById('spark').innerHTML = sparkline(ADMIN.dau);
+
+const dau = ADMIN.dau;
+const avg = Math.round(dau.reduce((a, b) => a + b, 0) / dau.length);
+const wow = Math.round(((dau.slice(-7).reduce((a, b) => a + b, 0)) /
+                        (dau.slice(0, 7).reduce((a, b) => a + b, 0)) - 1) * 100);
+document.getElementById('dauStats').innerHTML = [
+  ['Today', dau.at(-1)],
+  ['14-day average', avg],
+  ['Peak', Math.max(...dau)],
+  ['Week over week', `${wow > 0 ? '+' : ''}${wow}%`]
+].map(([k, v]) => `
+  <div>
+    <div class="k" style="font-family:var(--data);font-size:10px;letter-spacing:.12em;
+         text-transform:uppercase;color:var(--muted)">${k}</div>
+    <div class="data" style="font-size:16px;color:var(--chalk);margin-top:5px">${v}</div>
+  </div>`).join('');
+
+document.getElementById('svc').innerHTML = ADMIN.services.map(s => `
+  <div class="svc-row">
+    <span class="svc-dot ${s.status}"></span>
+    <div>
+      <div style="font-size:14px">${s.name}</div>
+      <div class="small">${s.detail}</div>
+    </div>
+    <span class="svc-state ${s.status}">${s.status === 'up' ? 'Operational' : s.status === 'idle' ? 'Not set up' : 'Down'}</span>
+  </div>`).join('');
+
+document.getElementById('qcount').textContent = `${ADMIN.queue.length} pending`;
+document.getElementById('queue').innerHTML = ADMIN.queue.map(q => `
+  <div class="queue-row">
+    <div class="grow">
+      <div style="font-weight:600">${q.name}</div>
+      <div class="small">${q.who} · ${q.when} · ${q.photo ? 'photo attached' : 'no photo'}</div>
+    </div>
+    <button class="btn btn-primary btn-sm">Approve</button>
+    <button class="btn btn-outline btn-sm">Edit</button>
+    <button class="btn btn-quiet">Reject</button>
+  </div>`).join('');
+
+document.getElementById('signups').innerHTML = `
+  <thead><tr><th>Name</th><th>Email</th><th>Sport</th><th>Joined</th><th></th></tr></thead>
+  <tbody>${ADMIN.signups.map(u => `
+    <tr>
+      <td><span class="avatar" style="display:inline-grid;vertical-align:middle;margin-right:9px">${u.name.split(' ').map(n => n[0]).join('')}</span>${u.name}</td>
+      <td class="num">${u.email}</td>
+      <td>${u.sport}</td>
+      <td class="num">${u.when}</td>
+      <td><button class="btn btn-quiet">View</button></td>
+    </tr>`).join('')}</tbody>`;
+
+const stale = FIELDS.filter(f => f.confirmedDays).sort((a, b) => b.confirmedDays - a.confirmedDays).slice(0, 6);
+document.getElementById('stale').innerHTML = `
+  <thead><tr><th>Field</th><th>Status</th><th>Last confirmed</th><th>Condition</th><th></th></tr></thead>
+  <tbody>${stale.map(f => `
+    <tr>
+      <td>${f.name}</td>
+      <td><span class="badge ${statusClass(f.status)}">${STATUS_LABEL[f.status]}</span></td>
+      <td class="num">${f.confirmedDays} days ago</td>
+      <td>${conditionBadge(f)}</td>
+      <td><a class="btn btn-quiet" href="field.html?id=${f.id}">Open</a></td>
+    </tr>`).join('')}</tbody>`;
+</script>
+</body></html>

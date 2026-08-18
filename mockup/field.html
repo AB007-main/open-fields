@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field | Open Fields</title>
+<meta name="description" content="Goals, conditions, ratings and directions for this field.">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Field | Open Fields">
+<meta property="og:description" content="Goals, conditions, ratings and directions for this field.">
+<meta property="og:image" content="brand/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="demo-banner">Mockup: this field's status, reports and notes are invented</div>
+<header class="site-header" data-header></header>
+
+<main class="wrap" style="padding-block:26px 60px">
+  <a class="small" href="map.html" style="display:inline-block;margin-bottom:18px">← Back to the map</a>
+
+  <div id="page"></div>
+</main>
+
+<footer class="site-footer" data-footer></footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="mock-data.js"></script>
+<script src="app.js"></script>
+<script>
+renderChrome('map');
+
+const f = byId(getParam('id')) || FIELDS[0];
+document.title = `${f.name} | Open Fields`;
+
+const statusHeadline = {
+  up: 'Lacrosse goals up',
+  seasonal: 'Lacrosse goals are seasonal here',
+  unverified: 'Goal type not confirmed yet',
+  closed: 'Field closed'
+}[f.status];
+
+const statusColor = { up: 'var(--turf)', seasonal: 'var(--warn)', unverified: 'var(--muted)', closed: 'var(--danger)' }[f.status];
+const statusFill  = { up: 'var(--turf-dim)', seasonal: 'var(--warn-dim)', unverified: 'rgba(138,150,143,.10)', closed: 'var(--danger-dim)' }[f.status];
+
+const yn = v => v === true ? 'Yes' : v === false ? 'No' : 'Unknown';
+
+document.getElementById('page').innerHTML = `
+  <!-- title -->
+  <div style="display:flex;justify-content:space-between;gap:20px;align-items:end;flex-wrap:wrap;margin-bottom:20px">
+    <div>
+      <p class="eyebrow" style="margin-bottom:10px">${f.area}</p>
+      <h1 class="display" style="font-size:clamp(34px,5.5vw,58px)">${f.name}</h1>
+      <p class="small" style="margin-top:8px">${f.address}</p>
+    </div>
+    <span class="data" style="color:var(--turf);font-size:15px">${fmtMiles(distanceTo(f))} MI AWAY</span>
+  </div>
+
+  <!-- status: the first thing you should read -->
+  <div class="statusbar" style="border-color:${statusColor};background:${statusFill}">
+    <div>
+      <div class="st-main" style="color:${statusColor}">${statusHeadline}</div>
+      <div class="st-sub">${freshness(f)}</div>
+    </div>
+    <div class="st-right">
+      <a class="btn ${isApple() ? 'btn-primary' : 'btn-outline'}" href="${directionsUrl(f, 'apple')}" target="_blank" rel="noopener">Apple Maps</a>
+      <a class="btn ${isApple() ? 'btn-outline' : 'btn-primary'}" href="${directionsUrl(f, 'google')}" target="_blank" rel="noopener">Google Maps</a>
+    </div>
+  </div>
+
+  ${f.status === 'seasonal' ? `
+  <div class="note" style="margin-top:16px">
+    Goals here usually come down in November and go back up in March. Check before you drive.
+  </div>` : ''}
+  ${f.status === 'closed' ? `
+  <div class="note" style="margin-top:16px;border-left-color:var(--danger);background:var(--danger-dim)">
+    ${f.gate}
+  </div>` : ''}
+
+  <!-- conditions: a separate question from "are there goals" -->
+  <div class="condbar" style="margin-top:16px">
+    <div>
+      <div class="lbl-sm">Playing surface now</div>
+      <div style="margin-top:6px">${conditionBadge(f)}</div>
+    </div>
+    <span class="sep"></span>
+    <div>
+      <div class="lbl-sm">Last condition report</div>
+      <div class="data" style="margin-top:6px;color:var(--chalk)">${f.condAge} ago</div>
+    </div>
+    <span class="sep"></span>
+    <div>
+      <div class="lbl-sm">Rating</div>
+      <div style="margin-top:6px">${ratingRow(f)}</div>
+    </div>
+    <span class="sep"></span>
+    <div>
+      <div class="lbl-sm">Played here</div>
+      <div style="margin-top:6px">${sportPills(f)}</div>
+    </div>
+    <button class="btn btn-outline btn-sm" style="margin-left:auto" data-jump="conditions">
+      Report conditions
+    </button>
+  </div>
+
+  <!-- photos -->
+  <div class="photostrip" style="margin-top:22px">
+    ${thumb(f, 'Photo, north goal')}
+    ${thumb(f, 'Photo, parking')}
+    ${thumb(f, 'Photo, surface')}
+  </div>
+
+  <div class="grid-2" style="margin-top:34px;align-items:start;gap:34px">
+    <!-- left column -->
+    <div class="stack" style="--stack:1">
+      <p class="eyebrow">What's there</p>
+      <dl class="attrs" style="margin-top:14px">
+        <div><dt>Surface</dt><dd>${f.surface}</dd></div>
+        <div><dt>Goals</dt><dd>${goalSummary(f)}</dd></div>
+        <div style="grid-column:1/-1"><dt>Goal type</dt><dd>${f.goalType}</dd></div>
+        <div><dt>Nets</dt><dd class="${f.nets === false ? 'is-warn' : ''}">${yn(f.nets)}</dd></div>
+        <div><dt>Lights</dt><dd>${yn(f.lights)}</dd></div>
+        <div><dt>Restrooms</dt><dd>${yn(f.restrooms)}</dd></div>
+        <div><dt>Parking</dt><dd>${f.parking}</dd></div>
+        <div><dt>Water</dt><dd>${yn(f.water)}</dd></div>
+        <div><dt>Cost</dt><dd class="${f.cost.startsWith('Free') ? '' : 'is-warn'}">${f.cost}</dd></div>
+        <div><dt>Hours</dt><dd class="${f.status === 'closed' ? 'is-danger' : ''}">${f.gate}</dd></div>
+      </dl>
+
+      <p class="eyebrow" style="margin-top:34px">Local knowledge</p>
+      <div class="note" style="margin-top:14px;border-left-color:var(--turf);background:var(--turf-dim)">
+        ${f.note}
+      </div>
+
+      <p class="eyebrow" style="margin-top:34px">Recent check-ins</p>
+      <div class="report-list" style="margin-top:6px">
+        ${REPORTS.map(r => `
+          <div class="report-item">
+            <span class="rdot is-${r.kind}"></span>
+            <div>
+              <div class="who">${r.text}</div>
+              <div class="small">${r.who}</div>
+            </div>
+            <span class="data when">${r.when}</span>
+          </div>`).join('')}
+      </div>
+
+      <p class="eyebrow" style="margin-top:34px" id="conditions">Comments &amp; ratings</p>
+
+      <div class="card" style="padding:20px;margin-top:14px">
+        <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
+          <div>
+            <div class="display" style="font-size:44px;line-height:1">${f.rating.toFixed(1)}</div>
+            <div style="margin-top:6px">${stars(f.rating)}</div>
+            <div class="small" style="margin-top:5px">${f.ratings} ratings</div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <div class="lbl-sm" style="font-family:var(--data);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)">
+              Rate this field
+            </div>
+            <div class="rate-picker" id="rate" style="margin-top:8px">
+              ${[1,2,3,4,5].map(n => `<button type="button" data-star="${n}" aria-label="${n} stars">
+                <svg aria-hidden="true"><use href="#i-star"></use></svg></button>`).join('')}
+            </div>
+            <p class="hint" id="rated" hidden style="color:var(--turf)">Rated. (Mockup: nothing saved.)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- composer: signed in writes, signed out is asked to join -->
+      <div style="margin-top:16px" id="composer"></div>
+
+      <div style="margin-top:8px" id="comments"></div>
+
+      <div class="ad ad-rect" style="margin-top:34px">
+        <div>
+          <div class="data">Sponsored</div>
+          <p class="small" style="margin-top:6px">Ad slot, below the fold, 300 by 250</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- right column -->
+    <div class="sidebar-sticky stack">
+      <div id="minimap"></div>
+
+      <div class="card" style="padding:20px;margin-top:16px">
+        <h3 class="display" style="font-size:22px">Is this still right?</h3>
+        <p class="small" style="margin-top:6px">One tap. It's what keeps the map honest.</p>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-quiet" data-report="up">
+            <svg style="width:15px;height:15px;color:var(--turf)"><use href="#i-check"></use></svg>
+            Goals are up
+          </button>
+          <button class="btn btn-quiet" data-report="gone">
+            <svg style="width:15px;height:15px;color:var(--danger)"><use href="#i-x"></use></svg>
+            Goals are gone
+          </button>
+        </div>
+        <button class="btn btn-quiet btn-block" style="margin-top:8px" data-report="photo">
+          <svg style="width:15px;height:15px"><use href="#i-camera"></use></svg>
+          Add a photo
+        </button>
+        <p class="hint" id="thanks" hidden>Thanks, logged. (Mockup: nothing was saved.)</p>
+      </div>
+
+      <div class="callout" style="margin-top:16px">
+        <b>Something wrong with this listing?</b><br>
+        If you manage this property and want it removed, <a href="#" style="color:var(--turf)">tell us</a>.
+      </div>
+    </div>
+  </div>
+`;
+
+document.querySelectorAll('[data-report]').forEach(b =>
+  b.addEventListener('click', () => { document.getElementById('thanks').hidden = false; })
+);
+
+// star picker
+document.querySelectorAll('#rate button').forEach(b => {
+  b.addEventListener('click', () => {
+    const n = +b.dataset.star;
+    document.querySelectorAll('#rate button').forEach(x => x.classList.toggle('on', +x.dataset.star <= n));
+    document.getElementById('rated').hidden = false;
+  });
+});
+
+// commenting needs an account, that is what the account is for
+const me = currentUser();
+document.getElementById('composer').innerHTML = me ? `
+  <div class="composer">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+      <span class="avatar">${me.initials}</span>
+      <span style="font-weight:600;font-size:14px">${me.name}</span>
+    </div>
+    <textarea class="inp" id="body" placeholder="How was it? Surface, gates, crowds, anything a first-timer should know."></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="post">Post comment</button>
+      <button class="btn btn-quiet">${icon('camera')} Add a photo</button>
+    </div>
+    <p class="hint" id="posted" hidden style="color:var(--turf)">Posted. (Mockup: nothing saved.)</p>
+  </div>` : `
+  <div class="gate">
+    <h3>Sign in to comment</h3>
+    <p>Comments and ratings come from real accounts. It keeps the field notes honest and
+       lets people follow up with you.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="signIn()">${icon('google')} Continue with Google</button>
+      <button class="btn btn-outline" onclick="signIn()">Use email</button>
+    </div>
+  </div>`;
+
+document.getElementById('post')?.addEventListener('click', () => {
+  document.getElementById('posted').hidden = false;
+});
+
+document.getElementById('comments').innerHTML = COMMENTS.map(c => `
+  <div class="comment">
+    <span class="avatar is-lg">${c.initials}</span>
+    <div>
+      <div class="comment-head">
+        <span class="who">${c.user}</span>
+        <span class="sport">${(SPORTS.find(x => x.id === c.sport) || {}).label || c.sport}</span>
+        ${stars(c.rating)}
+        <span class="data" style="color:var(--faint)">${c.when}</span>
+      </div>
+      <p>${c.body}</p>
+      <div class="comment-actions">
+        <button>Helpful</button><button>Reply</button><button>${'Report'}</button>
+      </div>
+    </div>
+  </div>`).join('');
+
+document.querySelector('[data-jump="conditions"]')?.addEventListener('click', () => {
+  document.getElementById('conditions').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+initMap('minimap', [f], { center: [f.lng, f.lat], zoom: 14 });
+</script>
+</body>
+</html>
